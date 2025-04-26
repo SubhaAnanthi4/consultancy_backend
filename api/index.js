@@ -188,31 +188,6 @@ app.delete('/materials/:id', async (req, res) => {
     res.status(500).json({ message: 'Error deleting material' });
   }
 });
-
-// Get wastage for a material
-app.get('/wastage/:materialId', async (req, res) => {
-  try {
-    const { materialId } = req.params;
-    const material = await MaterialDispatch.findById(materialId);
-    if (!material) return res.status(404).json({ message: 'Material not found' });
-
-    const batches = await BatchReturn.find({ materialId });
-    const totalReceived = batches.reduce((acc, batch) => acc + batch.receivedQuantity, 0);
-    const wastage = ((material.givenQuantity - totalReceived) / material.givenQuantity) * 100;
-
-    res.status(200).json({
-      materialName: material.materialName,
-      toCompany: material.toCompany,
-      givenQuantity: material.givenQuantity,
-      totalReceived,
-      wastagePercentage: wastage.toFixed(2),
-    });
-  } catch (error) {
-    console.error('Error calculating wastage:', error);
-    res.status(500).json({ message: 'Error calculating wastage' });
-  }
-});
-
 // Export to Excel
 app.get('/export/excel', async (req, res) => {
   try {
